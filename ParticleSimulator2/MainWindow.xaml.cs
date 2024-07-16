@@ -26,7 +26,7 @@ namespace ParticleSimulator.View
 
         public MainWindow()
         {
-            RenderOptions.ProcessRenderMode = RenderMode.Default;
+            RenderOptions.ProcessRenderMode = RenderMode.Default; //stuff
             InitializeComponent();
             controller = new SimulationController(this);
         }

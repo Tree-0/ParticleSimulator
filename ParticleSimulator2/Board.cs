@@ -5,11 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using ParticleSimulator.Model;
+using Genbox.VelcroPhysics;
+//using Genbox.VelcroPhysics.Dynamics;
 
 namespace ParticleSimulator.Model
 {
     public class Board
     {
+        //World _world { get; set; }
         public List<Particle> Particles;
         double Height;
         double Width;
@@ -43,11 +46,11 @@ namespace ParticleSimulator.Model
 
         public void HandleBoundaryCollision(Particle particle)
         {
-            if (particle.X - particle.Radius <= 0 || particle.X + particle.Radius >= Width)
+            if (particle.X - particle.Radius <= 0 || particle.X + particle.Radius >= Width - 10)
             {
                 particle.VX = -particle.VX;
             }
-            if (particle.Y - particle.Radius <= 0 || particle.Y + particle.Radius >= Height)
+            if (particle.Y - particle.Radius <= 0 || particle.Y + particle.Radius >= Height - 10)
             {
                 particle.VY = -particle.VY;
             }
