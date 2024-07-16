@@ -1,5 +1,6 @@
 ﻿using ParticleSimulator.Controller;
 using ParticleSimulator.Model;
+using System.Numerics;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
 using System.Windows;
@@ -22,6 +23,7 @@ namespace ParticleSimulator.View
     public partial class MainWindow : Window
     {
         public MouseButtonEventHandler? CanvasLeftMouseButtonDown;
+        public MouseButtonEventHandler? CanvasRightMouseButtonDown;
         private SimulationController controller;
 
         public MainWindow()
@@ -36,6 +38,11 @@ namespace ParticleSimulator.View
             CanvasLeftMouseButtonDown?.Invoke(sender, e);
         }
 
+        private void Canvas_RightMouseButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            CanvasRightMouseButtonDown?.Invoke(sender, e);
+        }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             controller.UpdateScreenSize(e.NewSize.Height, e.NewSize.Width);
@@ -46,8 +53,7 @@ namespace ParticleSimulator.View
             // render all particles
             foreach(var particle in particles)
             {
-                Canvas.SetLeft(particle.Shape, particle.X - particle.Radius);
-                Canvas.SetTop(particle.Shape, particle.Y - particle.Radius);
+                particle.UpdateShapePosition();
             }
         }
 
@@ -57,10 +63,15 @@ namespace ParticleSimulator.View
 
         public void UpdateParticleLabel(Particle? p)
         {
-            if (p == null) { ParticleDebugLabel.Content = "No particles"; return; }
-            ParticleDebugLabel.Content = $"XY: {Math.Round(p.X,5)} {Math.Round(p.Y, 5)} " +
-                $"\nVXY: {Math.Round(p.VX, 5)} {Math.Round(p.VY, 5)} " +
-                $"\nAXY: {Math.Round(p.AX, 5)} {Math.Round(p.AY,5)}";
+            if (p == null) { ParticleDebugLabel.Content = "no particles"; return; }
+            ParticleDebugLabel.Content = $"X: {p.Body.Position.X}, Y: {p.Body.Position.Y} \n" +
+                $"VX: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).X}, VY: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).Y} \n" +
+                $"AX AY TODO";
+        }
+
+        public void UpdateImpulseLabel(Vector2 impulse)
+        {
+            ImpulseLabel.Content = $"Most Recent Impulse: X: {impulse.X}, Y: {impulse.Y}";
         }
 
         public void UpdateScreenSize(double height, double width)

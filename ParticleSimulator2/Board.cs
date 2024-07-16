@@ -6,19 +6,23 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 using ParticleSimulator.Model;
 using Genbox.VelcroPhysics;
-//using Genbox.VelcroPhysics.Dynamics;
+using Genbox.VelcroPhysics.Dynamics;
+using Microsoft.Xna.Framework;
+//using System.Numerics;
+using System.Windows;
 
 namespace ParticleSimulator.Model
 {
     public class Board
     {
-        //World _world { get; set; }
+        public PhysicsWorld PhysicsWorld { get; private set; }
         public List<Particle> Particles;
-        double Height;
-        double Width;
+        public double Height;
+        public double Width;
 
         public Board(double height, double width) 
         {
+            PhysicsWorld = new PhysicsWorld(this);
             Particles = new List<Particle>();
             Height = height;
             Width = width;
@@ -31,10 +35,11 @@ namespace ParticleSimulator.Model
 
         public void UpdateBoard(double dt)
         {
-            foreach (Particle particle in Particles)
+            PhysicsWorld.Update((float)dt);
+
+            foreach (var particle in Particles)
             {
-                HandleBoundaryCollision(particle);
-                particle.Update(dt);
+                particle.UpdateShapePosition();
             }
         }
 
@@ -42,18 +47,23 @@ namespace ParticleSimulator.Model
         {
             Height = height;
             Width = width;
+            PhysicsWorld = new PhysicsWorld(this); // Recreate boundaries
         }
 
-        public void HandleBoundaryCollision(Particle particle)
+        public void PullParticlesToCursor(Point pos)
         {
-            if (particle.X - particle.Radius <= 0 || particle.X + particle.Radius >= Width - 10)
+            float mouse_x = (float)pos.X;
+            float mouse_y = (float)pos.Y;
+            foreach (Particle p in Particles) 
             {
-                particle.VX = -particle.VX;
-            }
-            if (particle.Y - particle.Radius <= 0 || particle.Y + particle.Radius >= Height - 10)
-            {
-                particle.VY = -particle.VY;
+                float x = p.Body.Position.X;
+                float y = p.Body.Position.Y;
+                Vector2 force = new Vector2((mouse_x - x) * 500, (mouse_y - y) * 500);
+                p.ApplyImpulse(force);                
             }
         }
+
+
+
     }
 }

@@ -7,55 +7,47 @@ using System.Windows.Xps;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Controls;
+using Genbox.VelcroPhysics.Dynamics;
+using Genbox.VelcroPhysics.Factories;
+using Genbox.VelcroPhysics.Collision.Shapes;
+using Microsoft.Xna.Framework;
 
 namespace ParticleSimulator.Model
 {
     public class Particle
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double VX { get; set; }
-        public double VY { get; set; }
-        public double AX { get; set; }
-        public double AY { get; set; }
-        public double Radius { get; }
+        public Body Body { get; private set; }
         public Ellipse Shape { get; private set; }
+        public double Radius { get; private set; }
 
-        public Particle(double x = 0, double y = 0, double vx = 0, double vy = 0, double ax = 0, double ay = 0, double radius = 5)
+        public Particle(World world, double x, double y, float radius)
         {
-            X = x;
-            Y = y;
-            VX = vx;
-            VY = vy;
-            AX = ax;
-            AY = ay;
             Radius = radius;
             Shape = new Ellipse() { Width = radius * 2, Height = radius * 2, Fill = Brushes.White };
 
-            Canvas.SetLeft(Shape, x - Radius);
-            Canvas.SetTop(Shape, y - Radius);
+            Body = BodyFactory.CreateCircle(world, (float)radius, 1f, new Vector2((float)x, (float)y));
+            Body.BodyType = BodyType.Dynamic;
+            Body.Mass = radius * radius * 3.14f; // proportional to area
+            Body.Restitution = 1f; // Bounciness
+            Body.Friction = 0f; // Friction
+            Body.LinearDamping = 0f; // Air Resistance
         }
 
-        public void Update(double dt)
+        public void UpdateShapePosition()
         {
-            UpdateVelocity(dt);
-            UpdatePosition(dt);
+            Canvas.SetLeft(Shape, Body.Position.X - Radius);
+            Canvas.SetTop(Shape, Body.Position.Y - Radius);
         }
 
-        public void UpdatePosition(double dt)
+        public void ApplyVelocity(Vector2 force)
         {
-            X += VX * dt;
-            Y += VY * dt;
+            Body.LinearVelocity = force;
         }
 
-        public void UpdateVelocity(double dt)
+        public void ApplyImpulse(Vector2 force)
         {
-            VX += AX * dt;
-            VY += AY * dt;
+            Body.ApplyLinearImpulse(force);
         }
-
-
-
-
     }
 }
+

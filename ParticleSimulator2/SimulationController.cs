@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,8 +8,11 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Windows.Xps;
 using ParticleSimulator.Model;
 using ParticleSimulator.View;
+using Microsoft.Xna.Framework;
+using Genbox.VelcroPhysics.Dynamics;
 
 namespace ParticleSimulator.Controller
 {
@@ -34,8 +38,8 @@ namespace ParticleSimulator.Controller
 
             CompositionTarget.Rendering += OnRendering;
 
-
             view.CanvasLeftMouseButtonDown += Canvas_LeftMouseButtonDown;
+            view.CanvasRightMouseButtonDown += Canvas_RightMouseButtonDown;
             previousTick = DateTime.Now.Ticks;
         }
 
@@ -45,12 +49,6 @@ namespace ParticleSimulator.Controller
             _view.UpdateDebugLabel(DateTime.Now.Ticks);
             _view.UpdateParticleLabel(_board.Particles.FirstOrDefault());
 
-            //foreach (var ball in balls)
-            //{
-            //    ball.UpdatePosition();
-            //    Canvas.SetLeft(ball.Ellipse, ball.Position.X);
-            //    Canvas.SetTop(ball.Ellipse, ball.Position.Y);
-            //}
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -71,14 +69,22 @@ namespace ParticleSimulator.Controller
             SpawnParticle(x, y);
         }
 
+        private void Canvas_RightMouseButtonDown(object? sender, MouseEventArgs e)
+        {
+            var pos = e.GetPosition(_view.SimulationCanvas);
+            _board.PullParticlesToCursor(pos);
+        }
+
         private void SpawnParticle(double x, double y)
         {
-            double vx = random.NextDouble() * 200 - 100;
-            double vy = random.NextDouble() * 200 - 100;
-            double ax = random.NextDouble() * 20 - 10;
-            double ay = random.NextDouble() * 20 - 10;
-            double m = 3;
-            Particle p = new Particle(x,y,vx * m,vy * m,ax * m * 20,ay * m * 20);
+            float vx = random.NextSingle() * 500 - 250;
+            float vy = random.NextSingle() * 500 - 250;
+            float ax = random.NextSingle() * 200 - 100;
+            float ay = random.NextSingle() * 200 - 100;
+            float radius = random.NextSingle() * 15 + 5;
+            Particle p = new Particle(_board.PhysicsWorld.World, x, y, radius);
+            p.ApplyVelocity(new Vector2(vx, vy) * p.Body.Mass);
+
             _board.AddParticle(p);
             _view.SimulationCanvas.Children.Add(p.Shape);
         }
@@ -87,6 +93,9 @@ namespace ParticleSimulator.Controller
         {
             _board.UpdateBoardSize(newHeight, newWidth);
             _view.UpdateScreenSize(newHeight, newWidth);
+            foreach (Particle p in _board.Particles) {
+                _view.SimulationCanvas.Children.Remove(p.Shape);
+            }
         }
     }
 }
