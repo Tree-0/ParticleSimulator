@@ -39,9 +39,14 @@ namespace ParticleSimulator.Model
             Canvas.SetTop(Shape, Body.Position.Y - Radius);
         }
 
-        public void ApplyVelocity(Vector2 force)
+        public void SetVelocity(Vector2 force)
         {
             Body.LinearVelocity = force;
+        }
+
+        public void ApplyVelocity(Vector2 force)
+        {
+            Body.LinearVelocity = Vector2.Add(Body.LinearVelocity, force);
         }
 
         public void ApplyImpulse(Vector2 force)

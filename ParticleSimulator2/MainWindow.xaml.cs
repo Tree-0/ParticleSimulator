@@ -22,15 +22,17 @@ namespace ParticleSimulator.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MouseButtonEventHandler? CanvasLeftMouseButtonDown;
-        public MouseButtonEventHandler? CanvasRightMouseButtonDown;
-        private SimulationController controller;
+        public event MouseButtonEventHandler? CanvasLeftMouseButtonDown;
+        public event MouseButtonEventHandler? CanvasRightMouseButtonDown;
+        public event KeyEventHandler? CanvasSpaceBarDown;
+
+        private SimulationController _controller;
 
         public MainWindow()
         {
             RenderOptions.ProcessRenderMode = RenderMode.Default; //stuff
             InitializeComponent();
-            controller = new SimulationController(this);
+            _controller = new SimulationController(this);
         }
 
         private void Canvas_LeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -43,9 +45,14 @@ namespace ParticleSimulator.View
             CanvasRightMouseButtonDown?.Invoke(sender, e);
         }
 
+        private void Canvas_SpaceBarDown(object sender, KeyEventArgs e)
+        {
+            CanvasSpaceBarDown?.Invoke(sender, e);
+        }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            controller.UpdateScreenSize(e.NewSize.Height, e.NewSize.Width);
+            _controller.UpdateScreenSize(e.NewSize.Height, e.NewSize.Width);
         }
 
         public void UpdateParticles(List<Particle> particles)

@@ -17,6 +17,7 @@ namespace ParticleSimulator.Model
     {
         public PhysicsWorld PhysicsWorld { get; private set; }
         public List<Particle> Particles;
+        public List<Barrier> Barriers;
         public double Height;
         public double Width;
 
@@ -24,6 +25,7 @@ namespace ParticleSimulator.Model
         {
             PhysicsWorld = new PhysicsWorld(this);
             Particles = new List<Particle>();
+            Barriers = new List<Barrier>();
             Height = height;
             Width = width;
         }
@@ -31,6 +33,12 @@ namespace ParticleSimulator.Model
         public void AddParticle(Particle particle)
         {
             Particles.Add(particle);
+        }
+
+        public void AddBarrier(Barrier barrier)
+        {
+            Barriers.Add(barrier);
+            barrier.UpdateShapePosition();
         }
 
         public void UpdateBoard(double dt)
@@ -58,7 +66,7 @@ namespace ParticleSimulator.Model
             {
                 float x = p.Body.Position.X;
                 float y = p.Body.Position.Y;
-                Vector2 force = new Vector2((mouse_x - x) * 500, (mouse_y - y) * 500);
+                Vector2 force = new Vector2((mouse_x - x) * 1000, (mouse_y - y) * 1000);
                 p.ApplyImpulse(force);                
             }
         }
