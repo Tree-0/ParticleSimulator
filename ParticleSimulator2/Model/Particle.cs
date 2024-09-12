@@ -20,17 +20,17 @@ namespace ParticleSimulator.Model
         public Ellipse Shape { get; private set; }
         public double Radius { get; private set; }
 
-        public Particle(World world, double x, double y, float radius)
+        public Particle(PhysicsWorld physicsWorld, double x, double y, float radius)
         {
             Radius = radius;
             Shape = new Ellipse() { Width = radius * 2, Height = radius * 2, Fill = Brushes.White };
 
-            Body = BodyFactory.CreateCircle(world, (float)radius, 1f, new Vector2((float)x, (float)y));
+            Body = BodyFactory.CreateCircle(physicsWorld.World, (float)radius, 1f, new Vector2((float)x, (float)y));
             Body.BodyType = BodyType.Dynamic;
             Body.Mass = radius * radius * 3.14f; // proportional to area
-            Body.Restitution = 1f; // Bounciness
-            Body.Friction = 0f; // Friction
-            Body.LinearDamping = 0f; // Air Resistance
+            Body.Restitution = physicsWorld.Restitution; //1f; // Bounciness
+            Body.Friction = physicsWorld.Friction; //0f; // Friction
+            Body.LinearDamping = physicsWorld.AirResistance; //0f; // Air Resistance
         }
 
         public void UpdateShapePosition()

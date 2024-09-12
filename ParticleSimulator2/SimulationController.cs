@@ -13,12 +13,13 @@ using ParticleSimulator.Model;
 using ParticleSimulator.View;
 using Microsoft.Xna.Framework;
 using Genbox.VelcroPhysics.Dynamics;
+using System.Windows;
 
 namespace ParticleSimulator.Controller
 {
     public class SimulationController
     {
-        private Board _board;
+        public Board Board;
         private MainWindow _view;
         private DispatcherTimer timer;
         private Random random;
@@ -28,8 +29,11 @@ namespace ParticleSimulator.Controller
         {
 
             this._view = view; 
-            _board = new Board(view.SimulationCanvas.ActualHeight, view.SimulationCanvas.ActualWidth);
+            Board = new Board(view.SimulationCanvas.ActualHeight, view.SimulationCanvas.ActualWidth);
             random = new Random();
+
+            // Attach to the SizeChanged event
+            view.SimulationCanvas.SizeChanged += OnCanvasSizeChanged;
 
             timer = new DispatcherTimer();
             timer.Tick += Timer_Tick;
@@ -44,14 +48,38 @@ namespace ParticleSimulator.Controller
             previousTick = DateTime.Now.Ticks;
         }
 
+
+        //
+        // Remove all children from model and view
+        //
+        public void RemoveAllPhysicsObjects()
+        {
+            // remove the graphics and the reference lists of bodies from the view and Board
+            foreach (Barrier b in this.Board.Barriers)
+            {
+                _view.SimulationCanvas.Children.Remove(b.Shape);
+            }
+            this.Board.Barriers.Clear();
+
+            // remove the graphics and the reference lists of bodies from the view and Board
+            foreach (Particle p in this.Board.Particles)
+            {
+                _view.SimulationCanvas.Children.Remove(p.Shape);
+            }
+            this.Board.Particles.Clear();
+
+            // recreate the whole damn board
+            Board = new Board(_view.SimulationCanvas.ActualHeight, _view.SimulationCanvas.ActualWidth);
+        }
+
         //
         // Update any text, shapes, and movement on screen 
         //
         private void OnRendering(object sender, EventArgs e)
         {
-            _view.UpdateParticles(_board.Particles);
+            _view.UpdateParticles(Board.Particles);
             _view.UpdateDebugLabel(DateTime.Now.Ticks);
-            _view.UpdateParticleLabel(_board.Particles.FirstOrDefault());
+            _view.UpdateParticleLabel(Board.Particles.FirstOrDefault());
 
         }
 
@@ -66,7 +94,7 @@ namespace ParticleSimulator.Controller
             double dt = 1.0f / 120.0f;
 
 
-            _board.UpdateBoard(dt);
+            Board.UpdateBoard(dt);
         
         }
 
@@ -77,6 +105,7 @@ namespace ParticleSimulator.Controller
         {
             var pos = e.GetPosition(_view.SimulationCanvas); // Get position relative to the canvas
             SpawnParticle(pos.X, pos.Y);
+            //Board.TestPropertyChange();
         }
 
         //
@@ -85,7 +114,7 @@ namespace ParticleSimulator.Controller
         private void Canvas_RightMouseButtonDown(object? sender, MouseEventArgs e)
         {
             var pos = e.GetPosition(_view.SimulationCanvas);
-            _board.PullParticlesToCursor(pos);
+            Board.PullParticlesToCursor(pos);
         }
 
         //
@@ -102,19 +131,24 @@ namespace ParticleSimulator.Controller
         }
 
         //
+        // When the f key is pressed, spawn ???
+        //
+
+
+        //
         // Spawn a particle with randomized velocity, radius, and acceleration.
         //
         private void SpawnParticle(double x, double y)
         {
-            float vx = (random.NextSingle() * 500 - 250) * 2;
-            float vy = (random.NextSingle() * 500 - 250) * 2;
-            float ax = (random.NextSingle() * 200 - 100) * 2;
-            float ay = (random.NextSingle() * 200 - 100) * 2;
+            float vx = (random.NextSingle() * 500 - 250) * 10;
+            float vy = (random.NextSingle() * 500 - 250) * 10;
+            float ax = (random.NextSingle() * 200 - 100) * 10;
+            float ay = (random.NextSingle() * 200 - 100) * 10;
             float radius = random.NextSingle() * 15 + 5;
-            Particle p = new Particle(_board.PhysicsWorld.World, x, y, radius);
+            Particle p = new Particle(Board.PhysicsWorld, x, y, radius);
             p.SetVelocity(new Vector2(vx, vy) * p.Body.Mass);
 
-            _board.AddParticle(p);
+            Board.AddParticle(p);
             _view.SimulationCanvas.Children.Add(p.Shape);
         }
 
@@ -123,18 +157,38 @@ namespace ParticleSimulator.Controller
         //
         private void SpawnBarrier(double x, double y)
         {
-            Barrier b = new Barrier(_board.PhysicsWorld.World, x, y, 40f);
-            _board.AddBarrier(b);
+            Barrier b = new Barrier(Board.PhysicsWorld.World, x, y, 40f);
+            Board.AddBarrier(b);
             b.UpdateShapePosition();
             _view.SimulationCanvas.Children.Add(b.Shape);
         }
 
+
+        // Handle Canvas SizeChanged event
+        private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateScreenSize(e.NewSize.Height, e.NewSize.Width);
+
+            // Refresh particles
+            foreach (var particle in Board.Particles)
+            {
+                particle.UpdateShapePosition();
+            }
+        }
+
+        //
+        // When the screen is resized, make sure that the border for the physics world updates as well.
+        //
         public void UpdateScreenSize(double newHeight, double newWidth)
         {
-            _board.UpdateBoardSize(newHeight, newWidth);
+            Board.UpdateBoardSize(newHeight, newWidth);
             _view.UpdateScreenSize(newHeight, newWidth);
-            foreach (Particle p in _board.Particles) {
+            foreach (Particle p in Board.Particles)
+            {
+                // TODO: ideally would refresh the particles instead of removing them
+                // calling UpdateShapePosition does not fix it
                 _view.SimulationCanvas.Children.Remove(p.Shape);
+                
             }
         }
     }

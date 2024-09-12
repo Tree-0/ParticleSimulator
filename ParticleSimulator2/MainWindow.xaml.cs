@@ -33,6 +33,10 @@ namespace ParticleSimulator.View
             RenderOptions.ProcessRenderMode = RenderMode.Default; //stuff
             InitializeComponent();
             _controller = new SimulationController(this);
+
+            this.DataContext = _controller.Board.PhysicsWorld;
+
+
         }
 
         private void Canvas_LeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -73,7 +77,7 @@ namespace ParticleSimulator.View
             if (p == null) { ParticleDebugLabel.Content = "no particles"; return; }
             ParticleDebugLabel.Content = $"X: {p.Body.Position.X}, Y: {p.Body.Position.Y} \n" +
                 $"VX: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).X}, VY: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).Y} \n" +
-                $"AX AY TODO";
+                $"AX: AY: TODO";
         }
 
         public void UpdateImpulseLabel(Vector2 impulse)
@@ -85,6 +89,65 @@ namespace ParticleSimulator.View
         {
             ScreenSizeLabel.Content = $"Height: {height}, Width: {width}";
         }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            _controller.RemoveAllPhysicsObjects();
+        }
+
+
+        /// <summary>
+        /// Because sliders didn't work, these buttons will set properties of the physics world instead...
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// 
+
+        private void FrictionTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (float.TryParse(FrictionTextBox.Text, out float newFriction))
+            {
+                _controller.Board.PhysicsWorld.Friction = newFriction;
+            }
+        }
+
+        private void RestitutionTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (float.TryParse(RestitutionTextBox.Text, out float newRestitution))
+            {
+                _controller.Board.PhysicsWorld.Restitution = newRestitution;
+            }
+        }
+
+        private void AirResistanceTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (float.TryParse(AirResistanceTextBox.Text, out float newAirResistance))
+            {
+                _controller.Board.PhysicsWorld.AirResistance = newAirResistance;
+            }
+        }
+
+        private void GravityTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (float.TryParse(GravityTextBox.Text, out float newGravity))
+            {
+                _controller.Board.PhysicsWorld.Gravity = newGravity;
+            }
+        }
+
+        private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                // Kill keyboard focus
+                Keyboard.ClearFocus();
+                // Kill logical focus
+                SimulationCanvas.Focus();
+
+            }
+        }
+
+
 
     }
 }

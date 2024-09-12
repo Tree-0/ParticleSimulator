@@ -2,15 +2,52 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Particle Simulator" Height="450" Width="800"
-        SizeChanged="Window_SizeChanged">
+        SizeChanged="Window_SizeChanged"
+        PreviewKeyDown="MainWindow_PreviewKeyDown">
+    <Grid Name="MainGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        
+        <Canvas Name="SimulationCanvas" Grid.Column="0" Background="Black" Focusable="True"
+                MouseLeftButtonDown="Canvas_LeftMouseButtonDown" MouseRightButtonDown="Canvas_RightMouseButtonDown"
+                >
+            <Label x:Name="TimeDebugLabel" Content="Debug Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="0" />
+            <Label x:Name="ParticleDebugLabel" Content="Particle Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="30" />
+            <Label x:Name="ImpulseLabel" Content="Most Recent Impulse:" FontSize="16" Foreground="Red" Canvas.Right="200" Canvas.Top="0"/>
+            <Label x:Name="ScreenSizeLabel" Content="Screen Size:" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Bottom="0" />
+        </Canvas>
 
-    <Canvas Name="SimulationCanvas" Background="Black" MouseLeftButtonDown="Canvas_LeftMouseButtonDown" MouseRightButtonDown="Canvas_RightMouseButtonDown">
-        <Label x:Name="TimeDebugLabel" Content="Debug Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="0" />
-        <Label x:Name="ParticleDebugLabel" Content="Particle Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="30" />
-        <Label x:Name="ImpulseLabel" Content="Most Recent Impulse:" FontSize="16" Foreground="Red" Canvas.Right="200" Canvas.Top="0"/>
-        <Label x:Name="ScreenSizeLabel" Content="Screen Size:" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Bottom="0" />
-    </Canvas>
+        <StackPanel Name="SliderStackPanel" Background="LightCoral" Grid.Column="1" Orientation="Vertical">
+            <Label Name="FrictionLabel" Content="Friction" Margin="10 10 10 0" />
+            <!-- <Slider Name="FrictionSlider" Foreground="Black" Width="130" Minimum="0" Maximum="100" Value="{Binding Friction, Mode=TwoWay}"/> -->
+            <TextBox Name="FrictionTextBox" Margin="10 10 10 10" LostFocus="FrictionTextBox_LostFocus"/>
+            
+            <Label Name="RestitutionLabel" Content="Restitution (Bounce)" Margin="10 0 0 0"/>
+            <!-- <Slider Name="RestitutionSlider" Foreground="Black" Width="130" Minimum="0" Maximum="100" Value="{Binding Restitution, Mode=OneWayToSource}"/> -->
+            <TextBox Name="RestitutionTextBox" Margin="10 10 10 10" LostFocus="RestitutionTextBox_LostFocus"/>
+
+            <Label Name="AirResistanceLabel" Content="Air Resistance" Margin="10 0 0 0"/>
+            <!-- <Slider Name="AirResistanceSlider" Foreground="Black" Width="130" Minimum="0" Maximum="100" Value="{Binding AirResistance, Mode=OneWayToSource}"/> -->
+            <TextBox Name="AirResistanceTextBox" Margin="10 10 10 10" LostFocus="AirResistanceTextBox_LostFocus"/>
+
+            <Label Name="GravityLabel" Content="Gravity" Margin="10 0 0 0"/>
+            <!-- <Slider Name="GravitySlider" Foreground="Black" Width="130" Minimum="0" Maximum="100" Value="{Binding Gravity, Mode=TwoWay}"/> -->
+            <TextBox Name="GravityTextBox" Margin="10 10 10 10" LostFocus="GravityTextBox_LostFocus"/>
+
+            <Button x:Name="ResetButton" Click="ResetButton_Click" Content="Reset" Margin="10 10 10 10"/>
+
+            <Label x:Name="FrictionValueLabel" Margin="10 0 10 0"/>
+            <Label x:Name="RestitutionValueLabel" Margin="10 0 10 0"/>
+            <Label x:Name="AirResistanceValueLabel" Margin="10 0 10 0"/>
+            <Label x:Name="GravityValueLabel" Margin="10 0 10 0"/>
+
+        </StackPanel>
+    </Grid>
     
-  
-    
+
+
+
+
 </Window>
