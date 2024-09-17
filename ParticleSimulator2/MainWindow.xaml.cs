@@ -76,8 +76,7 @@ namespace ParticleSimulator.View
         {
             if (p == null) { ParticleDebugLabel.Content = "no particles"; return; }
             ParticleDebugLabel.Content = $"X: {p.Body.Position.X}, Y: {p.Body.Position.Y} \n" +
-                $"VX: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).X}, VY: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).Y} \n" +
-                $"AX: AY: TODO";
+                $"VX: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).X}, VY: {p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position).Y} \n";
         }
 
         public void UpdateImpulseLabel(Vector2 impulse)
@@ -85,14 +84,31 @@ namespace ParticleSimulator.View
             ImpulseLabel.Content = $"Most Recent Impulse: X: {impulse.X}, Y: {impulse.Y}";
         }
 
-        public void UpdateScreenSize(double height, double width)
+        public void UpdateMagnitudeLabel(Particle? p)
+        {
+            if (p == null) { ParticleDebugLabel.Content = "no particles"; return; }
+            var velocity = p.Body.GetLinearVelocityFromWorldPoint(p.Body.Position);
+            MagnitudeLabel.Content = $"Vel. Magnitude: {Math.Sqrt(velocity.X * velocity.X + velocity.Y * velocity.Y)}";
+        }
+
+        public void UpdateScreenSizeLabel(double height, double width)
         {
             ScreenSizeLabel.Content = $"Height: {height}, Width: {width}";
         }
 
+
+        /// <summary>
+        /// Remove all physics objects and set parameters back to default
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             _controller.RemoveAllPhysicsObjects();
+            _controller.Board.UpdateBoardSize(_controller.Board.Height, _controller.Board.Width);
+
+            Keyboard.ClearFocus();
+            SimulationCanvas.Focus();
         }
 
 
@@ -135,6 +151,8 @@ namespace ParticleSimulator.View
             }
         }
 
+
+        // Clear focus from textboxes
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)

@@ -11,6 +11,8 @@ using System.Windows.Media.Media3D;
 using ParticleSimulator.Model;
 using System.ComponentModel;
 using System.Diagnostics;
+using Genbox.VelcroPhysics;
+using Genbox.VelcroPhysics.Shared;
 
 namespace ParticleSimulator.Model
 {
@@ -89,6 +91,8 @@ namespace ParticleSimulator.Model
         public PhysicsWorld(Board board) 
         {
             World = new World(new Vector2(0,1) * Gravity);
+            Settings.MaxTranslation = 500.0f; // Increase the max linear velocity
+
 
             double width = board.Width;
             double height = board.Height;
@@ -109,7 +113,7 @@ namespace ParticleSimulator.Model
 
         private void CreateBoundary(Vector2 start, Vector2 end)
         {
-            var edge = BodyFactory.CreateEdge(World, start, end);
+            var edge = BodyFactory.CreateEdge(this.World, start, end);
             edge.BodyType = BodyType.Static;
         }
 

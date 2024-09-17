@@ -69,7 +69,7 @@ namespace ParticleSimulator.Controller
             this.Board.Particles.Clear();
 
             // recreate the whole damn board
-            Board = new Board(_view.SimulationCanvas.ActualHeight, _view.SimulationCanvas.ActualWidth);
+            //Board = new Board(_view.SimulationCanvas.ActualHeight, _view.SimulationCanvas.ActualWidth);
         }
 
         //
@@ -80,7 +80,7 @@ namespace ParticleSimulator.Controller
             _view.UpdateParticles(Board.Particles);
             _view.UpdateDebugLabel(DateTime.Now.Ticks);
             _view.UpdateParticleLabel(Board.Particles.FirstOrDefault());
-
+            _view.UpdateMagnitudeLabel(Board.Particles.FirstOrDefault());
         }
 
         //
@@ -104,8 +104,13 @@ namespace ParticleSimulator.Controller
         private void Canvas_LeftMouseButtonDown(object? sender, MouseEventArgs e)
         {
             var pos = e.GetPosition(_view.SimulationCanvas); // Get position relative to the canvas
-            SpawnParticle(pos.X, pos.Y);
-            //Board.TestPropertyChange();
+
+            // random properties
+            float vx = (random.NextSingle() * 10 - 5);
+            float vy = (random.NextSingle() * 10 - 5);
+            float radius = random.NextSingle() * 15 + 5;
+            SpawnParticle(pos.X, pos.Y, vx, vy, radius);
+            
         }
 
         //
@@ -138,13 +143,8 @@ namespace ParticleSimulator.Controller
         //
         // Spawn a particle with randomized velocity, radius, and acceleration.
         //
-        private void SpawnParticle(double x, double y)
+        private void SpawnParticle(double x, double y, float vx=0, float vy=-10, float radius=10)
         {
-            float vx = (random.NextSingle() * 500 - 250) * 10;
-            float vy = (random.NextSingle() * 500 - 250) * 10;
-            float ax = (random.NextSingle() * 200 - 100) * 10;
-            float ay = (random.NextSingle() * 200 - 100) * 10;
-            float radius = random.NextSingle() * 15 + 5;
             Particle p = new Particle(Board.PhysicsWorld, x, y, radius);
             p.SetVelocity(new Vector2(vx, vy) * p.Body.Mass);
 
@@ -158,13 +158,14 @@ namespace ParticleSimulator.Controller
         private void SpawnBarrier(double x, double y)
         {
             Barrier b = new Barrier(Board.PhysicsWorld.World, x, y, 40f);
+
             Board.AddBarrier(b);
-            b.UpdateShapePosition();
             _view.SimulationCanvas.Children.Add(b.Shape);
         }
 
-
+        //
         // Handle Canvas SizeChanged event
+        //
         private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateScreenSize(e.NewSize.Height, e.NewSize.Width);
@@ -181,15 +182,13 @@ namespace ParticleSimulator.Controller
         //
         public void UpdateScreenSize(double newHeight, double newWidth)
         {
+            RemoveAllPhysicsObjects();
             Board.UpdateBoardSize(newHeight, newWidth);
-            _view.UpdateScreenSize(newHeight, newWidth);
-            foreach (Particle p in Board.Particles)
-            {
-                // TODO: ideally would refresh the particles instead of removing them
-                // calling UpdateShapePosition does not fix it
-                _view.SimulationCanvas.Children.Remove(p.Shape);
-                
-            }
+
+            // change text
+            _view.UpdateScreenSizeLabel(newHeight, newWidth);
+
+
         }
     }
 }

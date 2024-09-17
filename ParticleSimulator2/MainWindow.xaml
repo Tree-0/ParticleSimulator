@@ -13,10 +13,16 @@
         <Canvas Name="SimulationCanvas" Grid.Column="0" Background="Black" Focusable="True"
                 MouseLeftButtonDown="Canvas_LeftMouseButtonDown" MouseRightButtonDown="Canvas_RightMouseButtonDown"
                 >
-            <Label x:Name="TimeDebugLabel" Content="Debug Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="0" />
-            <Label x:Name="ParticleDebugLabel" Content="Particle Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="30" />
+            <StackPanel>
+                <Label x:Name="TimeDebugLabel" Content="Debug Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="0" />
+                <Label x:Name="ParticleDebugLabel" Content="Particle Info" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="30" />
+                
+                <Label x:Name="MagnitudeLabel" Content="Velocity Magnitude:" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Top="40"/>
+                <Label x:Name="ScreenSizeLabel" Content="Screen Size:" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Bottom="0" />
+            </StackPanel>
+
             <Label x:Name="ImpulseLabel" Content="Most Recent Impulse:" FontSize="16" Foreground="Red" Canvas.Right="200" Canvas.Top="0"/>
-            <Label x:Name="ScreenSizeLabel" Content="Screen Size:" FontSize="16" Foreground="Red" Canvas.Left="0" Canvas.Bottom="0" />
+
         </Canvas>
 
         <StackPanel Name="SliderStackPanel" Background="LightCoral" Grid.Column="1" Orientation="Vertical">

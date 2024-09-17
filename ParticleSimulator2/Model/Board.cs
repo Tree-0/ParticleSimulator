@@ -20,8 +20,8 @@ namespace ParticleSimulator.Model
         public PhysicsWorld PhysicsWorld { get; private set; }
         public List<Particle> Particles;
         public List<Barrier> Barriers;
-        public double Height;
-        public double Width;
+        public double Height { get; set; }
+        public double Width { get; set; }
 
         public Board(double height, double width) 
         {
@@ -127,6 +127,7 @@ namespace ParticleSimulator.Model
         {
             Height = height;
             Width = width;
+            
             PhysicsWorld = new PhysicsWorld(this); // Recreate boundaries
         }
 
